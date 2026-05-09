@@ -268,6 +268,10 @@ def calculate_profile():
     diagnosis_parts = []
     recommendation_parts = []
 
+    # --------------------------------------------------
+    # RESPUESTAS
+    # --------------------------------------------------
+
     sleep_quality = st.session_state.get("sleep_quality")
     wake_energy = st.session_state.get("wake_energy")
     calm = st.session_state.get("calm")
@@ -275,7 +279,10 @@ def calculate_profile():
     social = st.session_state.get("social")
     self_esteem = st.session_state.get("self_esteem")
 
+    # --------------------------------------------------
     # CORTISOL
+    # --------------------------------------------------
+
     if sleep_quality in [
         "Tenía sueño pero no dormí",
         "Ni dormí ni tenía sueño"
@@ -288,7 +295,10 @@ def calculate_profile():
     ]:
         cortisol += 3
 
+    # --------------------------------------------------
     # DOPAMINA
+    # --------------------------------------------------
+
     if wake_energy == "Poca":
         dopamine -= 2
 
@@ -298,19 +308,29 @@ def calculate_profile():
     ]:
         dopamine += 2
 
+    # --------------------------------------------------
     # OXITOCINA
+    # --------------------------------------------------
+
     if social in [
         "Me cuesta bastante",
         "Me cuesta mucho y evito socializar"
     ]:
         oxytocin -= 2
 
+    # --------------------------------------------------
     # SEROTONINA
+    # --------------------------------------------------
+
     if self_esteem == "Baja":
         serotonin -= 2
 
-    # DIAGNÓSTICO
+    # --------------------------------------------------
+    # DIAGNÓSTICO PERSONALIZADO
+    # --------------------------------------------------
+
     if cortisol >= 5:
+
         diagnosis_parts.append("""
 Tu cuerpo podría encontrarse actualmente en un estado de hiperactivación mantenida.
 La combinación entre descanso insuficiente y baja regulación emocional puede hacer que el organismo permanezca más tiempo en estado de alerta, dificultando la recuperación física y mental.
@@ -322,6 +342,7 @@ Reducir estímulos antes de dormir, mantener horarios regulares y realizar activ
 """)
 
     if dopamine <= -2:
+
         diagnosis_parts.append("""
 También se observan señales compatibles con fatiga mental y baja activación energética.
 Esto puede traducirse en menor motivación, cansancio frecuente y dificultad para mantener la concentración sostenida.
@@ -332,25 +353,20 @@ La exposición a luz natural, el movimiento físico suave y mantener objetivos p
 """)
 
     if oxytocin <= -2:
+
         diagnosis_parts.append("""
 Tus respuestas también reflejan cierta tendencia al aislamiento o dificultad para mantener relaciones sociales con comodidad.
 El apoyo social y las conexiones emocionales saludables son importantes para el equilibrio emocional y hormonal.
 """)
 
-        recommendation_parts.append("""
-Buscar pequeños momentos de conexión social segura, como hablar con alguien cercano o compartir una comida, puede ayudarte a mejorar tu bienestar emocional.
-""")
-
     if serotonin <= -2:
+
         diagnosis_parts.append("""
 La autoestima y la percepción emocional sobre uno mismo también parecen estar influyendo en tu bienestar general.
 """)
 
-        recommendation_parts.append("""
-Trabajar el autocuidado, el descanso y actividades que refuercen tu confianza personal puede favorecer un mayor equilibrio emocional.
-""")
-
     if not diagnosis_parts:
+
         diagnosis_parts.append("""
 En general mantienes un estado relativamente equilibrado tanto a nivel físico como emocional.
 Tus respuestas reflejan una buena adaptación general a las exigencias del día a día.
@@ -360,10 +376,14 @@ Tus respuestas reflejan una buena adaptación general a las exigencias del día 
 Mantener hábitos saludables y momentos de desconexión seguirá siendo importante para conservar ese equilibrio a largo plazo.
 """)
 
-    # CONTEXTO HORMONAL
+    # --------------------------------------------------
+    # HORMONAL
+    # --------------------------------------------------
+
     gender = st.session_state.get("gender")
 
     if gender != "Mujer":
+
         hormonal_text = """
 Hormonas relacionadas con el estrés como el cortisol podrían estar influyendo en tu descanso y energía diaria.
 
@@ -371,9 +391,11 @@ También es importante favorecer hábitos que estimulen neurotransmisores relaci
 """
 
     else:
+
         reproductive_state = st.session_state.get("reproductive_state")
 
         if reproductive_state == "Estoy embarazada":
+
             hormonal_text = """
 Durante el embarazo se producen importantes cambios hormonales que pueden influir tanto en el sueño como en el estado emocional y la energía diaria.
 
@@ -381,6 +403,7 @@ Es normal experimentar cambios emocionales o mayor cansancio debido a las variac
 """
 
         elif reproductive_state == "Estoy en menopausia":
+
             hormonal_text = """
 La menopausia implica cambios hormonales importantes que pueden afectar al descanso, la regulación emocional y la energía física.
 
@@ -388,7 +411,8 @@ Mantener hábitos saludables y actividad física moderada puede ayudarte a mejor
 """
 
         else:
-            phase = st.session_state.get("cycle_phase", "no especificada")
+
+            phase = st.session_state.get("cycle_phase")
 
             hormonal_text = f"""
 La fase actual de tu ciclo menstrual ({phase}) puede influir directamente tanto en tu estado emocional como en tu energía y bienestar físico.
@@ -400,46 +424,6 @@ Las variaciones hormonales normales del ciclo pueden modificar el descanso, la s
     recommendations = "\n\n".join(recommendation_parts)
 
     return diagnosis, recommendations, hormonal_text
-
-def final_activity_recommendation():
-   
-    sleep_quality = st.session_state.get("sleep_quality")
-    calm = st.session_state.get("calm")
-    social = st.session_state.get("social")
-    exercise = st.session_state.get("exercise")
-    wake_energy = st.session_state.get("wake_energy")
-    concentration = st.session_state.get("concentration")
-    breakfast = st.session_state.get("breakfast", "")
-    
-
-    if calm in ["Nunca me siento en calma", "Rara vez"] or sleep_quality in [
-        "Tenía sueño pero no dormí",
-        "Ni dormí ni tenía sueño"
-    ]:
-        activity = "meditar o realizar ejercicios de respiración"
-        benefit = "reducir el estrés y mejorar la calma mental"
-
-    elif wake_energy == "Poca" or exercise == "Nunca":
-        activity = "realizar ejercicio físico que disfrutes"
-        benefit = "aumentar tu energía y mejorar tu motivación"
-
-    elif social in ["Me cuesta bastante", "Me cuesta mucho y evito socializar"]:
-        activity = "compartir una comida con alguien cercano"
-        benefit = "mejorar tu estado de ánimo y conexión social"
-
-    elif not breakfast:
-        activity = "hacer una comida equilibrada y nutritiva"
-        benefit = "estabilizar tu energía durante el día"
-
-    else:
-        activity = "mantener pequeños hábitos saludables durante el día"
-        benefit = "mejorar tu bienestar general"
-
-    return f"""
-Desde Sync-B te recomendamos que busques un momento del día para {activity}.
-
-Esto puede ayudarte a {benefit}.
-"""
 
 
 # --------------------------------------------------
@@ -803,7 +787,7 @@ elif st.session_state.page == 4:
 
         if st.button("⬅ Atrás"):
 
-            if st.session_state.gender == "Mujer":
+            if st.session_state.get("gender") == "Mujer":
                 previous_page(3)
             else:
                 previous_page(2)
@@ -834,8 +818,6 @@ elif st.session_state.page == 5:
 
     diagnosis, recommendations, hormonal_text = calculate_profile()
 
-    final_recommendation = final_activity_recommendation()
-
     st.title("Resultados")
 
     st.markdown(
@@ -864,10 +846,10 @@ elif st.session_state.page == 5:
 
     st.subheader("Resumen de tus respuestas")
 
-    st.write(f"**Calidad del sueño:** {st.session_state.sleep_quality}")
-    st.write(f"**Energía al despertar:** {st.session_state.wake_energy}")
-    st.write(f"**Calma emocional:** {st.session_state.calm}")
-    st.write(f"**Ejercicio:** {st.session_state.exercise}")
+    st.write(f"**Calidad del sueño:** {st.session_state.get('sleep_quality', 'No registrado')}")
+    st.write(f"**Energía al despertar:** {st.session_state.get('wake_energy', 'No registrado')}")
+    st.write(f"**Calma emocional:** {st.session_state.get('calm', 'No registrado')}")
+    st.write(f"**Ejercicio:** {st.session_state.get('exercise', 'No registrado')}")
 
     st.markdown("---")
 
@@ -890,29 +872,16 @@ elif st.session_state.page == 5:
         st.markdown("---")
 
         st.write(
-            f"**Situación actual:** {st.session_state.reproductive_state}"
+         f"**Situación actual:** {st.session_state.get('reproductive_state', 'No registrado')}"
         )
 
-        if st.session_state.reproductive_state == "Tengo la regla de forma normal":
+       if st.session_state.get("reproductive_state") == "Tengo la regla de forma normal":
 
-            st.write(
-                f"**Fase del ciclo:** {st.session_state.cycle_phase}"
-            )
+           st.write(
+               f"**Fase del ciclo:** {st.session_state.get('cycle_phase', 'No registrada')}"
+           )
 
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    st.markdown("---")
-
-    st.subheader("🌿 Recomendación personalizada Sync-B")
-
-    st.markdown(
-        f"""
-        <div class='glass-box'>
-        <h3>{final_recommendation}</h3>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
     if st.button("Reiniciar test"):
 
@@ -920,4 +889,3 @@ elif st.session_state.page == 5:
             del st.session_state[key]
 
         st.rerun()
-
