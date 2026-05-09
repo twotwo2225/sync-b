@@ -867,19 +867,19 @@ elif st.session_state.page == 5:
 
     st.write(food_feedback)
 
-    if st.session_state.get("gender") == "Mujer":
+if st.session_state.get("gender") == "Mujer":
 
-        st.markdown("---")
+    st.markdown("---")
+
+    st.write(
+        f"**Situación actual:** {st.session_state.get('reproductive_state', 'No registrado')}"
+    )
+
+    if st.session_state.get("reproductive_state") == "Tengo la regla de forma normal":
 
         st.write(
-         f"**Situación actual:** {st.session_state.get('reproductive_state', 'No registrado')}"
+            f"**Fase del ciclo:** {st.session_state.get('cycle_phase', 'No registrada')}"
         )
-
-       if st.session_state.get("reproductive_state") == "Tengo la regla de forma normal":
-
-           st.write(
-               f"**Fase del ciclo:** {st.session_state.get('cycle_phase', 'No registrada')}"
-           )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
